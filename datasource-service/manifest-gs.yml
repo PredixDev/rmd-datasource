@@ -1,0 +1,22 @@
+#inherit: base-manifest.yml
+applications:
+  - name: gs-rmd-datasource
+    buildpack: java_buildpack
+    path: target/datasource-service-1.1.2-SNAPSHOT.jar
+    memory: 2GB
+    i : 2
+    services:
+        - rmd-time-series-gregory.stroup
+        - rmd-asset-gregory.stroup
+        - rmd-uaa-gregory.stroup  
+env:
+    predix_asset_name: rmd-asset-gregory.stroup
+    predix_timeseries_name : rmd-time-series-gregory.stroup
+    predix_oauthRestHost : https://39d5983f-0626-4f83-9611-4b0e6ee751a7.predix-uaa-sysint.grc-apps.svc.ice.ge.com
+    predix_oauthClientId : mvp3_ref_app:mvp3ref@pp
+    trustedIssuerIdsRegexPattern : ^https://(.*\\.)?predix-uaa-sysint.grc-apps.svc.ice.ge.com/oauth/token$
+    accessTokenEndpointUrl : https://39d5983f-0626-4f83-9611-4b0e6ee751a7.predix-uaa-sysint.grc-apps.svc.ice.ge.com/oauth/token
+    clientId : mvp3_ref_app
+    clientSecret: mvp3ref@pp
+    acsUri : https://acs-staging.grc-apps.svc.ice.ge.com
+    acsSubZone : rmdsubdomain

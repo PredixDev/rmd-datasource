@@ -1,0 +1,24 @@
+#inherit: base-manifest.yml
+applications:
+  - name: integration-rmd-datasource
+    buildpack: java_buildpack
+    path: target/datasource-service-1.1.2-SNAPSHOT.jar
+    memory: 2GB
+    i : 2
+    services:
+        - predix-asset-unittest
+        - predix-timeseries-unittest
+        - predix-uaa-sysint-unittest  
+env:
+    predix_asset_name: predix-asset-unittest
+    predix_timeseries_name : predix-timeseries-unittest
+    predix_oauthRestHost : 35492c1e-657c-4377-ac51-add963552460.predix-uaa-sysint.grc-apps.svc.ice.ge.com
+    predix_oauthClientId : rmd-unittest:secret
+    trustedIssuerIdsRegexPattern : ^https://(.*\\.)?predix-uaa-sysint.grc-apps.svc.ice.ge.com/oauth/token$
+    accessTokenEndpointUrl : https://35492c1e-657c-4377-ac51-add963552460.predix-uaa-sysint.grc-apps.svc.ice.ge.com/oauth/token
+    clientId : rmd-unittest
+    clientSecret: secret
+    acsUri : https://acs-staging.grc-apps.svc.ice.ge.com
+    acsSubZone : rmdsubdomain
+    
+

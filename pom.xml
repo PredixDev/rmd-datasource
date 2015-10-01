@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.ge.predix.solsvc</groupId>
+  <artifactId>datasource-bootstrap</artifactId>
+  <version>1.1.1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name></name>
+  
+  <modules>
+    <module>datasource-service-interface</module>
+    <module>datasource-service</module>
+  </modules>
+
+<distributionManagement>
+		<repository>
+			<id>artifactory.releases</id>
+			<name>artifactory.releases</name>
+			<url>https://devcloud.swcoe.ge.com/artifactory/PREDIX</url>
+		</repository>
+
+		<snapshotRepository>
+			<id>artifactory.snapshots</id>
+			<name>artifactory.snapshots</name>
+			<url>https://devcloud.swcoe.ge.com/artifactory/PREDIX-SNAPSHOT</url>
+		</snapshotRepository>
+	</distributionManagement>
+  
+</project>

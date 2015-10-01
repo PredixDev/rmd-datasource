@@ -1,0 +1,16 @@
+inherit: base-manifest.yml
+applications:
+  - name: training3-rmd-datasource
+    buildpack: java_buildpack
+    path: target/datasource-service-1.1.2-SNAPSHOT.jar
+    memory: 2GB
+    services:
+      - predixAsset
+      - newRelic
+      - predixTimeseries      
+env:
+    SPRING_PROFILES_ACTIVE : cloud,cloudtraining3 
+    predix_oauthRestHost : stc.predix-uaa-test.grc-apps.svc.ice.ge.com
+    predix_oauthClientId : training_app_3:tr@aining3
+    trustedIssuerIdsRegexPattern : ^http://(.*\\.)?stc.predix-uaa-test.grc-apps.svc.ice.ge.com/oauth/token$
+        
