@@ -1,0 +1,5 @@
+com.ge.predix.solsvc.experience.datasource.boot
+com.ge.predix.solsvc.experience.datasource.datagrid.api
+com.ge.predix.solsvc.experience.datasource.datagrid.dto
+com.ge.predix.solsvc.experience.datasource.datagrid.service
+com.ge.predix.solsvc.experience.datasource.handlers
