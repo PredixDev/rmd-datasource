@@ -1,0 +1,42 @@
+[
+  {
+    "siteName": [
+      "/asset/rmd_ref_app_gesso_BlockA"
+    ],
+    "unitNumber": [
+      "rmd_ref_app_gesso.9E03_PEN_BLKA_T1"
+    ],
+    "output": [
+      123.77,
+      -6.234848484848488
+    ],
+    "heatRate": [
+      8599.944444444445,
+      -12.779468109082707
+    ],
+    "compressorEfficiency": [
+      20.91764705882353,
+      -39.54437266235974
+    ]
+  },
+  {
+    "siteName": [
+      "/asset/rmd_ref_app_gesso_BlockA"
+    ],
+    "unitNumber": [
+      "rmd_ref_app_gesso.9E03_PEN_BLKA_T1"
+    ],
+    "output": [
+      123.77,
+      -6.234848484848488
+    ],
+    "heatRate": [
+      8599.944444444445,
+      -12.779468109082707
+    ],
+    "compressorEfficiency": [
+      20.91764705882353,
+      -39.54437266235974
+    ]
+  }
+]

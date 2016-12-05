@@ -1,0 +1,37 @@
+{
+    "type": "object",
+    "properties": {
+        "tableData": {
+            "type": "array",
+            "items": {
+                "type": "object"
+            }
+        },
+        "columns": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "field": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string"
+                    },
+                    "inputType": {
+                        "type": "string"
+                    },
+                    "inputSize": {
+                        "type": "number"
+                    },
+                    "label": {
+                        "type": "string"
+                    },
+                    "uom": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
