@@ -2,7 +2,7 @@
 applications:
   - name: {your-name}-rmd-datasource
     path: target/rmd-datasource-2.0.7.jar
-    memory: 1GB
+    memory: 512M
     services:
         - {uaaService}
         - {assetService}
