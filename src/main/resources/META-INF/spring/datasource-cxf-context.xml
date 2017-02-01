@@ -1,0 +1,61 @@
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs" xmlns:cxf="http://cxf.apache.org/core"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+			http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd
+			http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+			http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd">
+
+	<jaxrs:server id="cxfFactory" address="/">
+		<jaxrs:serviceBeans>
+			<!-- <ref bean="datagridService" /> -->
+			<ref bean="groupDatagridService" />
+			<ref bean="assetDatagridService" />
+			<ref bean="assetService" />
+			<ref bean="defaultService" />
+		</jaxrs:serviceBeans>
+
+		<jaxrs:inInterceptors>
+			<bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpInInterceptor" />
+		</jaxrs:inInterceptors>
+		<jaxrs:outInterceptors>
+			<bean class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPreStreamInterceptor" />
+			<bean
+				class="org.apache.cxf.jaxrs.provider.jsonp.JsonpPostStreamInterceptor" />
+		</jaxrs:outInterceptors>
+
+		<jaxrs:features>
+			<bean id="swagger2Feature" class="org.apache.cxf.jaxrs.swagger.Swagger2Feature">
+				<!-- customize some of the properties -->
+				<property name="title" value="Sample CXF example" />
+				<property name="scanAllResources" value="true" />
+				<property name="basePath" value="/services" />
+				<property name="contact" value="predix.adoption@ge.com" />
+			</bean>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxrs:features>
+
+		<jaxrs:providers>
+			<!-- <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJaxbJsonProvider" 
+				/> -->
+			<bean class="io.swagger.jaxrs.listing.SwaggerSerializers" />
+			<ref bean="applicationJSONProvider" />
+		</jaxrs:providers>
+	</jaxrs:server>
+
+	<cxf:bus>
+		<cxf:properties>
+			<!-- <entry key="org.apache.cxf.jaxrs.bus.providers" value-ref="busProviders" 
+				/> -->
+			<entry key="skip.default.json.provider.registration" value="true" />
+
+		</cxf:properties>
+	</cxf:bus>
+
+
+</beans>
