@@ -26,7 +26,7 @@ The services are focused on 2 main areas:
 - [PredixRestClient](https://github.com/predixdev/predix-rest-client)
 
 ### More Details
-* [More GE resources](http://github.com/predixdev/predix-rmd-ref-app/docs/resources.md)
+* [More GE resources](https://github.com/PredixDev/predix-rmd-ref-app/blob/master/docs/resources.md)
 * [RMD Reference App](http://github.com/predixdev/predix-rmd-ref-app)
 
 [![Analytics](https://ga-beacon.appspot.com/UA-82773213-1/rmd-datasource/readme?pixel)](https://github.com/PredixDev)
