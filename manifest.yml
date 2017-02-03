@@ -1,7 +1,7 @@
 #inherit: base-manifest.yml
 applications:
   - name: {your-name}-rmd-datasource
-    path: target/rmd-datasource-2.0.10.jar
+    path: target/rmd-datasource-2.0.11.jar
     memory: 512M
     services:
         - {uaaService}
@@ -9,8 +9,8 @@ applications:
         - {timeSeriesService}
         #- {acsService}
 env:
-    # NOTE: Some values in curly braces are updated by scripts
     SPRING_PROFILES_ACTIVE : cloud,clouddev 
+    # NOTE: Some values in curly braces are updated by scripts
     predix_uaa_name: {uaaService}
     predix_asset_name: {assetService}
     predix_timeseries_name : {timeSeriesService}
