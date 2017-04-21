@@ -18,7 +18,7 @@
         xmlns="http://www.springframework.org/schema/security"
         disable-url-rewriting="true" use-expressions="true"
         entry-point-ref="preAuthenticationEntryPoint">
-       <intercept-url pattern="/services/experience/datasource/datagrid/*" access="isFullyAuthenticated()" />
+       <intercept-url pattern="/services/experience/datasource/datagrid/**" access="isFullyAuthenticated()" />
          <anonymous enabled="false" />
         <custom-filter ref="oauth2ServiceFilter" position="PRE_AUTH_FILTER" />
         
