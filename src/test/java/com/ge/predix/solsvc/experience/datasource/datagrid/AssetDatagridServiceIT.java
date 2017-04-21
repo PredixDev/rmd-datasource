@@ -88,7 +88,7 @@ public class AssetDatagridServiceIT
         this.base = new URL(
                 "http://localhost:" + this.localServerPort + "/services/experience/datasource/datagrid/asset/ping");
         ResponseEntity<String> response = this.template.getForEntity(this.base.toString(), String.class);
-        assertThat(response.getBody(), startsWith("SUCCESS"));
+        assertThat(response.getBody(), startsWith("<UnauthorizedException>"));
     }
 
     // @Path("/{entityType}/{id}/")
