@@ -88,7 +88,7 @@ public class GroupDatagridServiceIT
         this.base = new URL(
                 "http://localhost:" + this.localServerPort + "/services/experience/datasource/datagrid/group/ping"); //$NON-NLS-1$ //$NON-NLS-2$
         ResponseEntity<String> response = this.template.getForEntity(this.base.toString(), String.class);
-        assertThat(response.getBody(), startsWith("SUCCESS")); //$NON-NLS-1$
+        assertThat(response.getBody(), startsWith("<UnauthorizedException>")); //$NON-NLS-1$
     }
 
     // @Path("/{entityType}/{id}/")
