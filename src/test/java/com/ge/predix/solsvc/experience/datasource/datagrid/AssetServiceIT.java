@@ -113,7 +113,7 @@ public class AssetServiceIT {
 		assertNotNull(assets);
 
 		assetUrl = new URL("http://localhost:" + this.localServerPort
-				+ "/services/experience/asset?filter=parent=/asset/compressor-2015");
+				+ "/services/experience/asset?filter=parent=/asset/compressor-2017");
 		assets = getAsset(assetUrl);
 
 		assertNotNull(assets);

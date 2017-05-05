@@ -101,7 +101,7 @@ public class AssetDatagridServiceIT
     {
         // get Token for the secure service
         URL dataSourceURl = new URL("http://localhost:" + this.localServerPort //$NON-NLS-1$
-                + "/services/experience/datasource/datagrid/asset/compressor-2015");  //$NON-NLS-1$
+                + "/services/experience/datasource/datagrid/asset/compressor-2017");  //$NON-NLS-1$
 
         List<Header> headers = this.restClient.getSecureTokenForClientId();
         try (CloseableHttpResponse response = this.restClient.get(dataSourceURl.toString(), headers))

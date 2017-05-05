@@ -11,14 +11,12 @@
 
     <sec:authentication-manager />
     
-    
-    <!-- This section shows how to enable authentication and authorization 
-        using values, like: IS_ACS_AUTHORIZED -->
+   
     <http pattern="/**" request-matcher="ant"
         xmlns="http://www.springframework.org/schema/security"
         disable-url-rewriting="true" use-expressions="true"
         entry-point-ref="preAuthenticationEntryPoint">
-       <intercept-url pattern="/services/experience/datasource/datagrid/**" access="isFullyAuthenticated()" />
+       <intercept-url pattern="/services/experience/**" access="isFullyAuthenticated()" />
          <anonymous enabled="false" />
         <custom-filter ref="oauth2ServiceFilter" position="PRE_AUTH_FILTER" />
         

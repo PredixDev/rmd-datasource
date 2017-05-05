@@ -5,7 +5,7 @@
 
 	<groupId>com.ge.predix.solsvc</groupId>
 	<artifactId>rmd-datasource</artifactId>
-	<version>2.0.11</version>
+	<version>2.0.21</version>
 	<packaging>jar</packaging>
 	<description>datasource-service</description>
 
@@ -18,8 +18,8 @@
 
 	<properties>
 		<cxf.version>3.1.7</cxf.version>
-		<asset-bootstrap-client.version>2.0.11</asset-bootstrap-client.version>
-		<predix-timeseries-client.version>2.1.11</predix-timeseries-client.version>
+		<asset-bootstrap-client.version>2.0.18</asset-bootstrap-client.version>
+		<predix-timeseries-client.version>2.1.18</predix-timeseries-client.version>
 		<jackson-providers.version>2.4.5</jackson-providers.version>
 		<httpclient.version>4.5.2</httpclient.version>
 
@@ -73,11 +73,6 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-rs-extension-providers</artifactId>
-			<version>${cxf.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>

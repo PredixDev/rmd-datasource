@@ -52,8 +52,8 @@ public class GroupDataSourceHandler extends DataSourceHandler {
 
 					AssetTag assetTag = entry.getValue();
 
-					if (assetTag.getTagDatasource().getIsKpi() != null && StringUtils
-							.containsIgnoreCase(assetTag.getTagDatasource().getIsKpi().toString(), "TRUE")) {
+					if (assetTag.getIsKpi() != null && StringUtils
+							.containsIgnoreCase(assetTag.getIsKpi().toString(), "TRUE")) {
 
 						GroupKpiDataGrid groupKpiDataGrid = new GroupKpiDataGrid();
 						groupKpiDataGrid.setAsset(asset.getDescription());
@@ -62,8 +62,8 @@ public class GroupDataSourceHandler extends DataSourceHandler {
 						groupKpiDataGrid.setTagUri(assetTag.getTagUri());
 						groupKpiDataGrid.setTag_isKpi(Boolean.TRUE);
 						groupKpiDataGrid.setTag_isPM(Boolean.FALSE);
-						if (assetTag.getTagDatasource().getMachineUri() != null
-								&& !(assetTag.getTagDatasource().getMachineUri()).toString().isEmpty()) {// $NON-NLS-1$
+						if (assetTag.getEdgeDatasource() != null
+								&& !(assetTag.getEdgeDatasource().getNodeName()).toString().isEmpty()) {// $NON-NLS-1$
 							groupKpiDataGrid.setTag_isPM(Boolean.TRUE);
 						}
 

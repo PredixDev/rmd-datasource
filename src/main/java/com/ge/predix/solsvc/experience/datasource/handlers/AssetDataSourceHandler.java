@@ -59,7 +59,7 @@ public class AssetDataSourceHandler extends DataSourceHandler
                     // check for tagExtensions and if properties are set return kpiDataGrid
                     if ( kpiDataGrid == null )
                     {
-                    	log.debug("getAnalyticsDrivenAssetDataGrid not found calling time series Current Value");
+                    	log.debug("getAnalyticsDrivenAssetDataGrid not found calling time series Current Value for " + entry.getKey());
                         kpiDataGrid = new AssetKpiDataGrid();
                         List<Double> dataPoint = getCurrentValue(entry.getKey(), assetTag, authorization);
                         if ( dataPoint != null && dataPoint.size() >= 2 )
@@ -79,12 +79,12 @@ public class AssetDataSourceHandler extends DataSourceHandler
 
                     kpiDataGrid.setTag(entry.getKey());
                     kpiDataGrid.setTagUri(assetTag.getTagUri());
-                    kpiDataGrid.setThresholdMax(assetTag.getOutputMaximum());
-                    kpiDataGrid.setThresholdMin(assetTag.getOutputMinimum());
+                    kpiDataGrid.setThresholdMax(assetTag.getHiAlarmThreshold());
+                    kpiDataGrid.setThresholdMin(assetTag.getLoAlarmThreshold());
                     setDeltaFromThreshold(kpiDataGrid, assetTag);
 
-                    if ( assetTag.getTagDatasource().getIsKpi() != null
-                            && StringUtils.containsIgnoreCase(assetTag.getTagDatasource().getIsKpi().toString(), "TRUE") )
+                    if ( assetTag.getIsKpi() != null
+                            && StringUtils.containsIgnoreCase(assetTag.getIsKpi().toString(), "TRUE") )
                     {
                         kpiDataGrid.setTag_isKpi(Boolean.TRUE);
                     }
@@ -92,8 +92,8 @@ public class AssetDataSourceHandler extends DataSourceHandler
                     {
                         kpiDataGrid.setTag_isKpi(Boolean.FALSE);
                     }
-                    if ( assetTag.getTagDatasource().getMachineUri() != null
-                            && !assetTag.getTagDatasource().getMachineUri().toString().isEmpty() )
+                    if ( assetTag.getEdgeDatasource() != null
+                            && !assetTag.getEdgeDatasource().getNodeName().isEmpty() )
                     {
                         kpiDataGrid.setTag_isPM(Boolean.TRUE);
                     }
@@ -129,7 +129,7 @@ public class AssetDataSourceHandler extends DataSourceHandler
     {
         Double currentValue = kpiDataGrid.getCurrentValue();
         Double thresholdMin = assetTag.getLoAlarmThreshold();
-        Double thresholdMax = assetTag.getOutputMaximum();
+        Double thresholdMax = assetTag.getHiAlarmThreshold();
 
         log.debug("currentValue = " + currentValue + " thresholdMin = " + thresholdMin + " thresholdMax = "   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
                 + thresholdMax);

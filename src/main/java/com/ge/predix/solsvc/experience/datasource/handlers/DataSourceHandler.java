@@ -18,7 +18,6 @@ import org.springframework.util.CollectionUtils;
 
 import com.ge.predix.entity.asset.Asset;
 import com.ge.predix.entity.asset.AssetTag;
-import com.ge.predix.entity.asset.TagDatasource;
 import com.ge.predix.entity.timeseries.datapoints.queryrequest.DatapointsQuery;
 import com.ge.predix.entity.timeseries.datapoints.queryrequest.latest.DatapointsLatestQuery;
 import com.ge.predix.entity.timeseries.datapoints.queryresponse.DatapointsResponse;
@@ -51,39 +50,44 @@ public abstract class DataSourceHandler {
 	/**
 	 * 
 	 */
-	public static final String GROUP_FILTER = "GROUP"; //$NON-NLS-1$
+	@SuppressWarnings("nls")
+    public static final String GROUP_FILTER = "GROUP"; 
 
 	/**
 	 * 
 	 */
-	public static final String PARENT_FILTER = "parent"; //$NON-NLS-1$
+	@SuppressWarnings("nls")
+    public static final String PARENT_FILTER = "parent"; 
 
 	/**
 	 * 
 	 */
-	public static final String IS_KPI_METER = "isKpi=true"; //$NON-NLS-1$
+	@SuppressWarnings("nls")
+    public static final String IS_KPI_METER = "isKpi=true"; 
 
 	/**
 	 * 
 	 */
-	public static final String MAC_URL = "machineUrl"; //$NON-NLS-1$
+	@SuppressWarnings("nls")
+    public static final String MAC_URL = "machineUrl"; 
 
 	/**
 	 * 
 	 */
-	public static final String SUMMARY_ASSET_ATT = "attributes.summary.value"; //$NON-NLS-1$
+	@SuppressWarnings("nls")
+    public static final String SUMMARY_ASSET_ATT = "attributes.summary.value"; 
 
 	/**
 	 * 
 	 */
-	public static final String SUMMARY_METERS = "summaryTag"; //$NON-NLS-1$
+	@SuppressWarnings("nls")
+    public static final String SUMMARY_METERS = "summaryTag"; 
 
 	/**
 	 * 
 	 */
-	public static final String MACHINE_URI = "machineUri"; //$NON-NLS-1$
-	@SuppressWarnings("unused")
-	private static final String METER_EXTENSIONS_URI = "tagExtensionsUri"; //$NON-NLS-1$
+	@SuppressWarnings("nls")
+    public static final String MACHINE_URI = "machineUri"; 
 
 	/**
 	 * 
@@ -160,29 +164,34 @@ public abstract class DataSourceHandler {
 	 * @param authorization - 
 	 * @return -
 	 */
-	protected List<Double> getCurrentValue(String assetTagName, AssetTag assetTag, String authorization) {
+	@SuppressWarnings("nls")
+    protected List<Double> getCurrentValue(String assetTagName, AssetTag assetTag, String authorization) {
 
 		List<Header> headers = new ArrayList<Header>();
 		this.restClient.addSecureTokenToHeaders(headers, authorization);
 		this.restClient.addZoneToHeaders(headers, this.timeseriesConfig.getZoneId());
 
-		DatapointsLatestQuery latestDatapoints = new DatapointsLatestQuery();
+        if (log.isTraceEnabled()) {
+            log.trace("assetTag= " + assetTag);
+        }
+
+        DatapointsLatestQuery latestDatapoints = new DatapointsLatestQuery();
 		com.ge.predix.entity.timeseries.datapoints.queryrequest.latest.Tag tag = new com.ge.predix.entity.timeseries.datapoints.queryrequest.latest.Tag();
-		tag.setName(assetTag.getSourceTagId());
+		tag.setName(assetTag.getTimeseriesDatasource().getTag());
 		List<com.ge.predix.entity.timeseries.datapoints.queryrequest.latest.Tag> tags = new ArrayList<com.ge.predix.entity.timeseries.datapoints.queryrequest.latest.Tag>();
 		tags.add(tag);
 		latestDatapoints.setTags(tags);
 		Long startTime = System.currentTimeMillis();
 		if (log.isTraceEnabled()) {
-			log.trace("Callling TS Current Value " + this.timeseriesConfig.getQueryUrl() + " " //$NON-NLS-1$ //$NON-NLS-2$
+			log.trace("Callling TS Current Value " + this.timeseriesConfig.getQueryUrl() + " "  
 					+ latestDatapoints.toString());
 		}
 
 		DatapointsResponse response = this.getTimeseriesClient()
 				.queryForLatestDatapoint(latestDatapoints, headers);
 		if (log.isTraceEnabled()) {
-			log.trace("Total time spend is sec " + (System.currentTimeMillis() - startTime) / 1000); //$NON-NLS-1$
-			log.trace("Callling TS Current Value " + this.timeseriesConfig.getQueryUrl() + " " //$NON-NLS-1$//$NON-NLS-2$
+			log.trace("Total time spend is sec " + (System.currentTimeMillis() - startTime) / 1000); 
+			log.trace("Callling TS Current Value " + this.timeseriesConfig.getQueryUrl() + " " 
 					+ latestDatapoints.toString());
 		}
 		List<Double> currentValueList = createCurrentValueList(response);
@@ -227,7 +236,8 @@ public abstract class DataSourceHandler {
 	 *            : authorization
 	 * @return Tag
 	 */
-	protected Tag getTag(String tagUri, String authorization) {
+	@SuppressWarnings("nls")
+    protected Tag getTag(String tagUri, String authorization) {
 		// GET Tag
 		List<Header> headers = new ArrayList<Header>();
 		this.restClient.addSecureTokenToHeaders(headers, authorization);
@@ -237,7 +247,7 @@ public abstract class DataSourceHandler {
 			this.assetMap.get(tagUri);
 		}
 		if (tag == null)
-			tag = this.getTagFactory().getTag(tagUri.replace("/tag/", ""), //$NON-NLS-1$ //$NON-NLS-2$
+			tag = this.getTagFactory().getTag(tagUri.replace("/tag/", ""),  
 					headers);
 		if (tag != null) {
 			this.assetMap.put(tagUri, tag);
@@ -255,7 +265,7 @@ public abstract class DataSourceHandler {
 	 */
 	protected Boolean getTagAlertStatus(Double currentValue, AssetTag assetTag) {
 
-		if (currentValue > assetTag.getOutputMinimum() && currentValue < assetTag.getOutputMaximum()) {
+		if (currentValue > assetTag.getLoAlarmThreshold() && currentValue < assetTag.getHiAlarmThreshold()) {
 			return Boolean.FALSE;
 		}
 		return Boolean.TRUE;
@@ -267,13 +277,14 @@ public abstract class DataSourceHandler {
 	 *            -
 	 * @return -
 	 */
-	protected boolean hasKpi(Asset asset) {
+	@SuppressWarnings("nls")
+    protected boolean hasKpi(Asset asset) {
 		LinkedHashMap<String, AssetTag> tags = asset.getAssetTag();
 		if (tags != null) {
 			for (Entry<String, AssetTag> entry : tags.entrySet()) {
 				AssetTag assetTag = entry.getValue();
-				if (assetTag.getTagDatasource().getIsKpi() != null
-						&& StringUtils.containsIgnoreCase(assetTag.getTagDatasource().getIsKpi().toString(), "TRUE")) { //$NON-NLS-1$
+				if (assetTag.getIsKpi() != null
+						&& StringUtils.containsIgnoreCase(assetTag.getIsKpi().toString(), "TRUE")) { 
 					return true;
 				}
 			}
@@ -294,7 +305,8 @@ public abstract class DataSourceHandler {
 	 *            : authorization
 	 * @return SummaryKpiDataGridResponse
 	 */
-	public SummaryKpiDataGridResponse getSummary(String id, String startTime, String endTime, String authorization) {
+	@SuppressWarnings("nls")
+    public SummaryKpiDataGridResponse getSummary(String id, String startTime, String endTime, String authorization) {
 
 		SummaryKpiDataGridResponse summaryKpiDataGrid = new SummaryKpiDataGridResponse();
 
@@ -302,7 +314,7 @@ public abstract class DataSourceHandler {
 
 		setSummaryBasedOnTags(summaryKpiDataGrid, asset, authorization, startTime, endTime);
 
-		Double availability = getAvailability(id, authorization, startTime, endTime); // ??
+		Double health = getHealth(id, authorization, startTime, endTime); // ??
 																						// startTime
 																						// and
 																						// endTime
@@ -310,16 +322,17 @@ public abstract class DataSourceHandler {
 																						// not
 																						// used
 																						// in
-																						// getAvailability
+																						// getHealth
 																						// method
 
-		Double reliability = new Double(60);
+		Double reliability = new Double(95);
+		Double availability = new Double(99.4);
 
-		addkpi(summaryKpiDataGrid, MathUtils.round(reliability, 3), "Reliability", "%"); //$NON-NLS-1$ //$NON-NLS-2$
-		addkpi(summaryKpiDataGrid, MathUtils.round(availability, 3), "Availability", "%");//$NON-NLS-1$ //$NON-NLS-2$
-		summaryKpiDataGrid.getOverall().setTitle("KPI Health");//$NON-NLS-1$
+		addkpi(summaryKpiDataGrid, MathUtils.round(reliability, 3), "Reliability", "%");  
+		addkpi(summaryKpiDataGrid, MathUtils.round(availability, 3), "Availability", "%"); 
+		summaryKpiDataGrid.getOverall().setTitle("KPI Health");
 		summaryKpiDataGrid.getOverall().setSubtitle(id);
-		summaryKpiDataGrid.getOverall().setPercentage(availability);
+		summaryKpiDataGrid.getOverall().setPercentage(health);
 
 		return summaryKpiDataGrid;
 	}
@@ -337,7 +350,8 @@ public abstract class DataSourceHandler {
 	 * @param endTime
 	 *            : endTime
 	 */
-	protected void setSummaryBasedOnTags(SummaryKpiDataGridResponse summaryKpiDataGrid, Asset asset,
+	@SuppressWarnings("nls")
+    protected void setSummaryBasedOnTags(SummaryKpiDataGridResponse summaryKpiDataGrid, Asset asset,
 			String authorization, String startTime, String endTime) {
 
 		AssetTag outputTag = null;
@@ -371,31 +385,31 @@ public abstract class DataSourceHandler {
 			if (outputTag != null) {
 				tag = getTag(outputTag.getTagUri(), authorization);
 				if (tag != null) {
-					average = getSummaryOutput(outputTag.getTagUri().replace("/tag/", ""), //$NON-NLS-1$ //$NON-NLS-2$
+					average = getSummaryOutput(outputTag.getTagUri().replace("/tag/", ""),  
 							outputTag, authorization, summaryKpiDataGrid, startTime, endTime);
 					if (average == null || average == 0d) {
 						average = 10d;
 					}
-					addkpi(summaryKpiDataGrid, MathUtils.round(average, 3), "Output (avg)", tag.getUom());//$NON-NLS-1$
+					addkpi(summaryKpiDataGrid, MathUtils.round(average, 3), "Output (avg)", tag.getUom());
 				}
 
 			} else {
-				addkpi(summaryKpiDataGrid, MathUtils.round(10d, 3), "Output (avg)", "");//$NON-NLS-1$ //$NON-NLS-2$
+				addkpi(summaryKpiDataGrid, MathUtils.round(10d, 3), "Output (avg)", ""); 
 			}
 
 			if (summary2Tag != null) {
 				tag = getTag(summary2Tag.getTagUri(), authorization);
 				if (tag != null) {
-					average = getSummaryOutput(summary2Tag.getTagUri().replace("/tag/", ""), //$NON-NLS-1$ //$NON-NLS-2$
+					average = getSummaryOutput(summary2Tag.getTagUri().replace("/tag/", ""),  
 							summary2Tag, authorization, summaryKpiDataGrid, startTime, endTime);
 					if (average == null || average == 0d) {
 						average = 10d;
 					}
-					addkpi(summaryKpiDataGrid, MathUtils.round(average, 3), tag.getName() + " (avg)", tag.getUom());//$NON-NLS-1$
+					addkpi(summaryKpiDataGrid, MathUtils.round(average, 3), tag.getName() + " (avg)", tag.getUom());
 				}
 			} else {
 
-				addkpi(summaryKpiDataGrid, MathUtils.round(10d, 3), "Output (avg)", ""); //$NON-NLS-1$ //$NON-NLS-2$
+				addkpi(summaryKpiDataGrid, MathUtils.round(10d, 3), "Output (avg)", "");  
 			}
 		}
 
@@ -413,7 +427,8 @@ public abstract class DataSourceHandler {
 	 *            : end_time
 	 * @return Double
 	 */
-	protected Double getAvailability(String id, String authorization, String start_time, String end_time) {
+	@SuppressWarnings("nls")
+    protected Double getHealth(String id, String authorization, String start_time, String end_time) {
 		Double availability = 0d;
 
 		int tagsNotInAlarmState = 0;
@@ -427,7 +442,7 @@ public abstract class DataSourceHandler {
 
 		if (groupList != null && tagsNotInAlarmState > 0) {
 			availability = (double) ((tagsNotInAlarmState * 100) / groupList.size());
-			log.debug("getAvailability" + availability + "= (" + tagsNotInAlarmState + "* 100 ) / " + groupList.size());//$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			log.debug("getHealth" + availability + "= (" + tagsNotInAlarmState + "* 100 ) / " + groupList.size());  //$NON-NLS-3$
 		}
 		return availability;
 	}
@@ -440,7 +455,9 @@ public abstract class DataSourceHandler {
 	 *            : authorization
 	 * @return Asset
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({
+            "unchecked", "nls"
+    })
 	public Asset getSummaryAsset(String id, String authorization) {
 
 		// GET asset
@@ -451,26 +468,26 @@ public abstract class DataSourceHandler {
 		List<Asset> assets = null;
 
 		if (isCacheEnabled()) {
-			assets = ((List<Asset>) this.assetMap.get(SUMMARY_ASSET_ATT + "/" + GROUP_FILTER.toLowerCase() + "/" + id)); //$NON-NLS-1$//$NON-NLS-2$
+			assets = ((List<Asset>) this.assetMap.get(SUMMARY_ASSET_ATT + "/" + GROUP_FILTER.toLowerCase() + "/" + id)); 
 		}
 		if (assets == null || assets.size() == 0) {
 			Long startTime = System.currentTimeMillis();
 			if (log.isTraceEnabled()) {
-				log.trace("Callling Asset Summary" + SUMMARY_ASSET_ATT, "/" + GROUP_FILTER.toLowerCase() + "/" + id); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				log.trace("Callling Asset Summary" + SUMMARY_ASSET_ATT, "/" + GROUP_FILTER.toLowerCase() + "/" + id);   //$NON-NLS-3$
 			}
 
-			log.debug("cache missed,going to asset now "); //$NON-NLS-1$
+			log.debug("cache missed,going to asset now "); 
 			assets = this.getAssetFactory().getAssetsByFilter(null, SUMMARY_ASSET_ATT,
-					"/" + GROUP_FILTER.toLowerCase() + "/" + id, //$NON-NLS-1$ //$NON-NLS-2$
+					"/" + GROUP_FILTER.toLowerCase() + "/" + id,  
 					headers);
-			this.assetMap.put(SUMMARY_ASSET_ATT + "/" + GROUP_FILTER.toLowerCase() + "/" //$NON-NLS-1$//$NON-NLS-2$
+			this.assetMap.put(SUMMARY_ASSET_ATT + "/" + GROUP_FILTER.toLowerCase() + "/" 
 					+ id, assets);
 			if (log.isTraceEnabled()) {
-				log.trace("Total time spend is sec " + (System.currentTimeMillis() - startTime) / 1000); //$NON-NLS-1$
-				log.trace("END Asset Summary" + SUMMARY_ASSET_ATT, "/" + GROUP_FILTER.toLowerCase() + "/" + id); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				log.trace("Total time spend is sec " + (System.currentTimeMillis() - startTime) / 1000); 
+				log.trace("END Asset Summary" + SUMMARY_ASSET_ATT, "/" + GROUP_FILTER.toLowerCase() + "/" + id);   //$NON-NLS-3$
 			}
 		} else {
-			log.debug("cache hit,Loading asset from cache "); //$NON-NLS-1$
+			log.debug("cache hit,Loading asset from cache "); 
 		}
 
 		if (assets != null && assets.size() >= 1) {
@@ -511,7 +528,8 @@ public abstract class DataSourceHandler {
 	 * @return Double
 	 */
 
-	protected Double getSummaryOutput(String assetTagName, AssetTag assetTag, String authorization,
+	@SuppressWarnings("nls")
+    protected Double getSummaryOutput(String assetTagName, AssetTag assetTag, String authorization,
 			SummaryKpiDataGridResponse summaryKpiDataGrid, String startTime, String endTime) {
 
 		DatapointsQuery datapointsQuery = buildDatapointsQueryRequest(assetTag, startTime, endTime);
@@ -522,14 +540,14 @@ public abstract class DataSourceHandler {
 
 		Long logStartTime = System.currentTimeMillis();
 		if (log.isTraceEnabled()) {
-			log.trace("Callling TS Query" + this.timeseriesConfig.getQueryUrl() + " " + datapointsQuery.toString()); //$NON-NLS-1$ //$NON-NLS-2$
+			log.trace("Callling TS Query" + this.timeseriesConfig.getQueryUrl() + " " + datapointsQuery.toString());  
 		}
 		DatapointsResponse response = this.getTimeseriesClient()
 				.queryForDatapoints(datapointsQuery, headers);
 		log.debug(response.toString());
 		if (log.isTraceEnabled()) {
-			log.trace("Total time spend is sec " + (System.currentTimeMillis() - logStartTime) / 1000); //$NON-NLS-1$
-			log.trace("Callling TS Query"); //$NON-NLS-1$
+			log.trace("Total time spend is sec " + (System.currentTimeMillis() - logStartTime) / 1000); 
+			log.trace("Callling TS Query"); 
 		}
 
 		Double avg = getAverageFromDatapointsResponse(response);
@@ -564,23 +582,23 @@ public abstract class DataSourceHandler {
 		return avg;
 	}
 
-	private DatapointsQuery buildDatapointsQueryRequest(AssetTag assetTag, String startTime, String endTime) {
+	@SuppressWarnings("nls")
+    private DatapointsQuery buildDatapointsQueryRequest(AssetTag assetTag, String startTime, String endTime) {
 		DatapointsQuery datapointsQuery = new DatapointsQuery();
 		if (startTime == null) {
-			datapointsQuery.setStart("5d-ago"); //$NON-NLS-1$
+			datapointsQuery.setStart("5d-ago"); 
 		} else {
 			datapointsQuery.setStart(startTime);
 		}
 		if (endTime != null) {
 			datapointsQuery.setEnd(endTime);
 		}
-
 		com.ge.predix.entity.timeseries.datapoints.queryrequest.Tag tag = new com.ge.predix.entity.timeseries.datapoints.queryrequest.Tag();
-		tag.setName(assetTag.getSourceTagId());
+		tag.setName(assetTag.getTimeseriesDatasource().getTag());
 
 		com.ge.predix.entity.timeseries.datapoints.queryrequest.Aggregation aggregation = new com.ge.predix.entity.timeseries.datapoints.queryrequest.Aggregation();
-		aggregation.setType("avg"); //$NON-NLS-1$
-		aggregation.setInterval("5d"); //$NON-NLS-1$
+		aggregation.setType("avg"); 
+		aggregation.setInterval("5d"); 
 		List<com.ge.predix.entity.timeseries.datapoints.queryrequest.Aggregation> aggregations = new ArrayList<com.ge.predix.entity.timeseries.datapoints.queryrequest.Aggregation>();
 		aggregations.add(aggregation);
 		tag.setAggregations(aggregations);
@@ -600,34 +618,33 @@ public abstract class DataSourceHandler {
 	 *            -
 	 * @return -
 	 */
-	@SuppressWarnings({ "cast" })
+	@SuppressWarnings({"nls" })
 	protected AssetKpiDataGrid getAnalyticsDrivenAssetDataGrid(String tagName, AssetTag assetTag,
 			String authorization) {
 		AssetKpiDataGrid assetKpiDataGrid = null;
 		// check if datasource has the tagExtenstionsUri
 		String tagExtensionUrl = null;
-		if (assetTag.getTagDatasource() instanceof TagDatasource
-				&& assetTag.getTagDatasource().getTagExtensionsUri() != null
-				&& !(assetTag.getTagDatasource()).getTagExtensionsUri().toString().isEmpty()) {
-			tagExtensionUrl = assetTag.getTagDatasource().getTagExtensionsUri().toString();
+		if (assetTag.getAlertStatusUri() != null
+				&& !(assetTag.getAlertStatusUri().isEmpty())) {
+			tagExtensionUrl = assetTag.getAlertStatusUri();
 		} else {
 			return null;
 		}
 
-		Asset asset = getAsset(tagExtensionUrl.replace("/asset/", ""), authorization);//$NON-NLS-1$ //$NON-NLS-2$
-		String alertStatus = getValueFromAttributes(asset, "alertStatus");//$NON-NLS-1$
-		String alertType = getValueFromAttributes(asset, "alertType");//$NON-NLS-1$
-		String alertLevel = getValueFromAttributes(asset, "alertLevel");//$NON-NLS-1$
-		String thresholdDiff = getValueFromAttributes(asset, "deltaThreshold");//$NON-NLS-1$
-		String alarmLevelValue = getValueFromAttributes(asset, "alertLevelValue");//$NON-NLS-1$
-		String alarmLevelValueTime = getValueFromAttributes(asset, "alertTime");//$NON-NLS-1$
-		String sourceType = getValueFromAttributes(asset, "sourceType");//$NON-NLS-1$
-		log.debug("***Analytics Tag information**** for " + tagName); //$NON-NLS-1$
-		log.debug("alertStatus = " + alertStatus);//$NON-NLS-1$
-		log.debug("alertType = " + alertType);//$NON-NLS-1$
-		log.debug("alertLevel = " + alertLevel);//$NON-NLS-1$
-		log.debug("thresholdDiff = " + thresholdDiff);//$NON-NLS-1$
-		log.debug("alarmLevelValue = " + alarmLevelValue);//$NON-NLS-1$
+		Asset asset = getAsset(tagExtensionUrl.replace("/asset/", ""), authorization); 
+		String alertStatus = getValueFromAttributes(asset, "alertStatus");
+		String alertType = getValueFromAttributes(asset, "alertType");
+		String alertLevel = getValueFromAttributes(asset, "alertLevel");
+		String thresholdDiff = getValueFromAttributes(asset, "deltaThreshold");
+		String alarmLevelValue = getValueFromAttributes(asset, "alertLevelValue");
+		String alarmLevelValueTime = getValueFromAttributes(asset, "alertTime");
+		String sourceType = getValueFromAttributes(asset, "sourceType");
+		log.debug("***Analytics Tag information**** for " + tagName); 
+		log.debug("alertStatus = " + alertStatus);
+		log.debug("alertType = " + alertType);
+		log.debug("alertLevel = " + alertLevel);
+		log.debug("thresholdDiff = " + thresholdDiff);
+		log.debug("alarmLevelValue = " + alarmLevelValue);
 
 		if (!org.springframework.util.StringUtils.isEmpty(sourceType)
 				&& !org.springframework.util.StringUtils.isEmpty(alertStatus)
@@ -649,7 +666,8 @@ public abstract class DataSourceHandler {
 		return assetKpiDataGrid;
 	}
 
-	private String getValueFromAttributes(Asset asset, String attributeName) {
+	@SuppressWarnings("nls")
+    private String getValueFromAttributes(Asset asset, String attributeName) {
 		String attValue = null;
 		Attribute attribute = (Attribute) asset.getAttributes().get(attributeName);
 
@@ -657,7 +675,7 @@ public abstract class DataSourceHandler {
 				&& attribute.getValue().size() > 0) {
 			if (!org.springframework.util.StringUtils.isEmpty(attribute.getValue().get(0))) {
 				attValue = attribute.getValue().get(0).toString();
-				log.debug("attributeName" + attributeName + "=" + attValue);//$NON-NLS-1$ //$NON-NLS-2$
+				log.debug("attributeName" + attributeName + "=" + attValue); 
 			}
 		}
 
@@ -671,7 +689,8 @@ public abstract class DataSourceHandler {
 	 *            -
 	 * @return -
 	 */
-	public Asset getAsset(final String id, final String authorization) {
+	@SuppressWarnings("nls")
+    public Asset getAsset(final String id, final String authorization) {
 		Asset asset = null;
 		if (authorization == null) {
 			// Note in your app you may want to throw an exception rather than
@@ -686,21 +705,21 @@ public abstract class DataSourceHandler {
 				asset = (Asset) this.assetMap.get(id);
 			}
 			if (asset == null) {
-				log.debug("Cache missed,going to asset" + id); //$NON-NLS-1$
+				log.debug("Cache missed,going to asset" + id); 
 				Long startTime = System.currentTimeMillis();
 				if (log.isTraceEnabled()) {
-					log.trace("Callling getAsset"); //$NON-NLS-1$
+					log.trace("Callling getAsset"); 
 				}
 				asset = this.getAssetFactory().getAsset(id, headers);
 				if (asset != null) {
 					this.assetMap.put(id, asset);
 				}
 				if (log.isTraceEnabled()) {
-					log.trace("Total time spend is sec " + (System.currentTimeMillis() - startTime) / 1000); //$NON-NLS-1$
-					log.trace("Callling getAsset"); //$NON-NLS-1$
+					log.trace("Total time spend is sec " + (System.currentTimeMillis() - startTime) / 1000); 
+					log.trace("Callling getAsset"); 
 				}
 			} else {
-				log.debug("Cache hit,loading from cache" + id); //$NON-NLS-1$
+				log.debug("Cache hit,loading from cache" + id); 
 			}
 		}
 		return asset;
