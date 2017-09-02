@@ -1,7 +1,7 @@
 #inherit: base-manifest.yml
 applications:
   - name: {your-name}-rmd-datasource
-    path: target/rmd-datasource-2.0.27.jar
+    path: target/rmd-datasource-2.0.29.jar
     memory: 512M
     services:
         - {uaaService}
@@ -23,8 +23,6 @@ env:
     accessTokenEndpointUrl : https://{oauthRestHost}/oauth/token
     clientId : {clientId}
     clientSecret: {secret}
-    #used by predix uaa-token-lib
-    trustedIssuerIdsRegexPattern : ^https://(.*\\.)?{oauthRestHost}/oauth/token$
     #logging - see application-cloud.properties
     logging_level_root: INFO
     logging_level_org_springframework: INFO

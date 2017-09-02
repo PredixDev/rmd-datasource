@@ -39,8 +39,12 @@
         tokens in requests -->
       <bean id="remoteTokenServices" class="com.ge.predix.uaa.token.lib.FastTokenServices">
          <property name="useHttps" value="true" />
-        <property name="storeClaims" value="true" />
-        <property name="trustedIssuerIdsRegex" value="${trustedIssuerIdsRegexPattern}" />
+        <property name="trustedIssuers" >
+        <list>
+        	<value>${predix.oauth.issuerId.url}</value>
+        </list>
+        </property>
+      
     </bean>
 
     <bean id="preAuthenticationEntryPoint"
