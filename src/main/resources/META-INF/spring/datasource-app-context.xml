@@ -41,7 +41,7 @@
          <property name="useHttps" value="true" />
         <property name="trustedIssuers" >
         <list>
-        	<value>${predix.oauth.issuerId.url}</value>
+        	<value>${accessTokenEndpointUrl}</value>
         </list>
         </property>
       
