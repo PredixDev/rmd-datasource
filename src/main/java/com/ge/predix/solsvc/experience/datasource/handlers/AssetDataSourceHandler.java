@@ -58,8 +58,8 @@ public class AssetDataSourceHandler extends DataSourceHandler
 
                     // check for tagExtensions and if properties are set return kpiDataGrid
                     if ( kpiDataGrid == null )
-                    {
-                    	log.debug("getAnalyticsDrivenAssetDataGrid not found calling time series Current Value for " + entry.getKey());
+                    {                    	
+                    	log.debug("getAnalyticsDrivenAssetDataGrid not found for " + asset.getUri() + " calling time series Current Value for " + entry.getKey());
                         kpiDataGrid = new AssetKpiDataGrid();
                         List<Double> dataPoint = getCurrentValue(entry.getKey(), assetTag, authorization);
                         if ( dataPoint != null && dataPoint.size() >= 2 )

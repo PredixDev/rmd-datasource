@@ -81,12 +81,21 @@ public class AssetService extends DataSourceHandler {
 			}
 			Long startTime = System.currentTimeMillis();
 			if (log.isDebugEnabled()) {
-				log.debug("Callling getAssetGroup from getCache " + groupIdentifier); //$NON-NLS-1$
+				log.debug("Callling getAssetGroup from getCacheGroup " + groupIdentifier); //$NON-NLS-1$
 			}
 			// /group?filter=parent=/group/root
 			String[] filtervalue = filter.split("="); //$NON-NLS-1$
-			List<Group> groups = this.groupFactory.getGroupsByFilter(null, filtervalue[0], filtervalue[1], headers);
+			
+			
+			//List<Group> groups = this.groupFactory.getGroupsByFilter(null, filtervalue[0], filtervalue[1], headers);
+			
+			//log.debug(" test filterValue from AssetService.java  getCacheGroup  " + filtervalue[0] + "    " + filtervalue[1]);
+			List<Group> groups = this.assetClient.getModelsByFilter(Group.class, null, filtervalue[0], 
+					filtervalue[1], headers);
+			
+			
 			this.getAssetMap().put(groupIdentifier, handleResult(groups,MediaType.APPLICATION_JSON_TYPE));
+			
 			if (log.isTraceEnabled()) {
 				log.debug("Total Group call time = " + (System.currentTimeMillis() - startTime) / 1000); //$NON-NLS-1$
 				log.debug("END getAssetGroup from getCache " + groupIdentifier); //$NON-NLS-1$
@@ -129,13 +138,18 @@ public class AssetService extends DataSourceHandler {
 			}
 			Long startTime = System.currentTimeMillis();
 			if (log.isDebugEnabled()) {
-				log.debug("Callling getAssetGroup from getCache " + assetIdentifier); //$NON-NLS-1$
+				log.debug("Callling getAssetGroup from getCacheAsset " + assetIdentifier); //$NON-NLS-1$
 			}
-			// /group?filter=parent=/group/root
 			String[] filtervalue = filter.split("="); //$NON-NLS-1$
-			List<Asset> assets = this.getAssetFactory().getAssetsByFilter(null, filtervalue[0], filtervalue[1],
+			
+			//List<Asset> assets = this.getAssetFactory().getAssetsByFilter(null, filtervalue[0], filtervalue[1],headers);
+			
+			//Call using the new API now.
+			List<Asset> assets = this.assetClient.getModelsByFilter(Asset.class, null, filtervalue[0], filtervalue[1],
 					headers);
+			
 			this.getAssetMap().put(assetIdentifier, handleResult(assets, MediaType.APPLICATION_JSON_TYPE));
+			
 			if (log.isTraceEnabled()) {
 				log.debug("Total Group call time = " + (System.currentTimeMillis() - startTime) / 1000); //$NON-NLS-1$
 				log.debug("END getAssetGroup from getCache " + assetIdentifier); //$NON-NLS-1$

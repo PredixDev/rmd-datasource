@@ -52,8 +52,8 @@ public class GroupDataSourceHandler extends DataSourceHandler {
 
 					AssetTag assetTag = entry.getValue();
 
-					if (assetTag.getIsKpi() != null && StringUtils
-							.containsIgnoreCase(assetTag.getIsKpi().toString(), "TRUE")) {
+					if (assetTag.getIsKpi() != null
+							&& StringUtils.containsIgnoreCase(assetTag.getIsKpi().toString(), "TRUE")) {
 
 						GroupKpiDataGrid groupKpiDataGrid = new GroupKpiDataGrid();
 						groupKpiDataGrid.setAsset(asset.getDescription());
@@ -101,44 +101,65 @@ public class GroupDataSourceHandler extends DataSourceHandler {
 	 */
 	private List<Asset> getAssetWithKpi(String id, String authorization) {
 		List<Asset> allGroupChildrenAsset = new ArrayList<Asset>();
-		
+
 		List<Header> headers = new ArrayList<Header>();
 		List<Asset> totalAssets = new ArrayList<Asset>();
 
 		this.restClient.addSecureTokenToHeaders(headers, authorization);
 		this.restClient.addZoneToHeaders(headers, this.assetConfig.getZoneId());
-		// GET Group
-		List<Group> groups = this.groupFactory.getGroupsByFilter(null, PARENT_FILTER.toLowerCase(),
-				"/" + GROUP_FILTER.toLowerCase()//$NON-NLS-1$
-						+ "/" + id, //$NON-NLS-1$
-				headers);
+		
+//		log.debug("Parameter id value from method: getAssetWithKpi: " + id);
+		
+		log.debug("Parameter filetr value from method: getAssetWithKpi: " 
+		+ PARENT_FILTER.toLowerCase() + "/" + GROUP_FILTER.toLowerCase()	
+		+ "/");
 
-		// get current group as well
-		groups.add(this.groupFactory.getGroup(id, headers));
-
+		List<Group> groups = this.assetClient.getModelsByFilter(Group.class, null, 
+				PARENT_FILTER.toLowerCase(), "/" + GROUP_FILTER.toLowerCase()
+				+ "/" + id, headers);
+		if (groups == null) {
+			log.debug("from getAssetWithKpi: getting parent group as null: ");
+			groups = new ArrayList<Group>();
+		}
+		
+		// get current group as well		
+		List<Group> currentGroup = this.assetClient.getModels("/group/" + id, Group.class, headers);
+		log.debug("from getAssetWithKpi- list of current groups:" + currentGroup.size() );
+		log.debug("from getAssetWithKpi- list of current groups:" + currentGroup.toString() );
+		groups.add( currentGroup.get(0));
+		
+		List<Asset> groupAssets = null;
 		for (Group group : groups) {
 			// get assets for this group
+			
+			//call using the new API method now
+			 groupAssets = this.assetClient.getModelsByFilter(Asset.class, null,
+					GROUP_FILTER.toLowerCase(), group.getUri(), headers);
 
-			List<Asset> groupAssets = getAssetFactory().getAssetsByFilter(null, GROUP_FILTER.toLowerCase(),
-					group.getUri(), headers);
-
+		}//end for here
+			
+			
 			if (CollectionUtils.isEmpty(groupAssets)) {
 				return allGroupChildrenAsset;
 			}
-
+			
+			
 			for (Asset asset : groupAssets) {
 				totalAssets.add(asset);
-				totalAssets.addAll(getAssetChildren(asset, headers));
+				if(getAssetChildren(asset, headers)!= null)
+					{
+						totalAssets.addAll(getAssetChildren(asset, headers));
+					}
 			}
-
-		}
-
+		
 		// check for kpi
 		for (Asset asset : totalAssets) {
 			if (hasKpi(asset)) {
 				allGroupChildrenAsset.add(asset);
 			}
 		}
+		
+		
 
 		return allGroupChildrenAsset;
 	}
@@ -151,15 +172,24 @@ public class GroupDataSourceHandler extends DataSourceHandler {
 	 * @return
 	 */
 	private Collection<? extends Asset> getAssetChildren(Asset asset, List<Header> headers) {
+		
 		List<Asset> assetChildren = new ArrayList<Asset>();
 
-		List<Asset> assets = getAssetFactory().getAssetsByFilter(null, PARENT_FILTER.toLowerCase(), asset.getUri(),
-				headers);
+//		List<Asset> assets = getAssetFactory().getAssetsByFilter(null, PARENT_FILTER.toLowerCase(), asset.getUri(),
+//				headers);
+		
+		List<Asset> assets = this.assetClient.getModelsByFilter(Asset.class, null, "parentUri", 
+				asset.getUri(), headers);
+		if(null == assets)
+			log.debug("from getAssetChildren: No Child assets found");
 
 		if (assets != null && assets.size() > 0) {
+			//log.debug("from getAssetChildren: Assets size is " + assets.size());
 			assetChildren.addAll(assets);
 			for (Asset child : assets) {
-				assetChildren.addAll(getAssetChildren(child, headers));
+				//Add if the children assets returned is not null
+				if( getAssetChildren(child, headers) != null)
+					assetChildren.addAll(getAssetChildren(child, headers));
 			}
 
 		} else {

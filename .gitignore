@@ -1,4 +1,6 @@
 *.class
+err
+out
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
@@ -18,3 +20,4 @@ hs_err_pid*
 /.project
 .classpath
 manifest.yml.bak
+/.metadata/

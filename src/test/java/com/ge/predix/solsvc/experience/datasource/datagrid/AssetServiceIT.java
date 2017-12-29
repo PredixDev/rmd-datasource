@@ -94,29 +94,13 @@ public class AssetServiceIT {
 
 		groupUrl = new URL("http://localhost:" + this.localServerPort
 				+ "/services/experience/group?filter=parent=/group/site-richmond");
+		
+		///group/plant-richmond-refinery
+//		groupUrl = new URL("http://localhost:" + this.localServerPort
+//				+ "/services/experience/group?filter=parent=/group/plant-richmond-refinery");
+		
 		groups = getGroup(groupUrl);
 		assertNotNull(groups);
-	}
-
-	/**
-	 * @throws Exception
-	 *             -
-	 */
-	@SuppressWarnings("nls")
-	@Test
-	public void getAssetLevel() throws Exception {
-
-		URL assetUrl = new URL("http://localhost:" + this.localServerPort
-				+ "/services/experience/asset?filter=group=/group/plant-richmond-refinery");
-
-		List<Asset> assets = getAsset(assetUrl);
-		assertNotNull(assets);
-
-		assetUrl = new URL("http://localhost:" + this.localServerPort
-				+ "/services/experience/asset?filter=parent=/asset/compressor-2017");
-		assets = getAsset(assetUrl);
-
-		assertNotNull(assets);
 	}
 
 	/**

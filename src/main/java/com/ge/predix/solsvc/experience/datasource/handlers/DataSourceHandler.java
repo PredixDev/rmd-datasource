@@ -13,6 +13,7 @@ import org.apache.http.Header;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.CollectionUtils;
 
@@ -24,9 +25,7 @@ import com.ge.predix.entity.timeseries.datapoints.queryresponse.DatapointsRespon
 import com.ge.predix.solsvc.bootstrap.ams.common.AssetConfig;
 import com.ge.predix.solsvc.bootstrap.ams.dto.Attribute;
 import com.ge.predix.solsvc.bootstrap.ams.dto.Tag;
-import com.ge.predix.solsvc.bootstrap.ams.factories.AssetFactory;
-import com.ge.predix.solsvc.bootstrap.ams.factories.GroupFactory;
-import com.ge.predix.solsvc.bootstrap.ams.factories.TagFactory;
+import com.ge.predix.solsvc.bootstrap.ams.factories.AssetClientImpl;
 import com.ge.predix.solsvc.experience.datasource.datagrid.dto.AssetKpiDataGrid;
 import com.ge.predix.solsvc.experience.datasource.datagrid.dto.BaseKpiDataGrid;
 import com.ge.predix.solsvc.experience.datasource.datagrid.dto.SummaryKpiColumn;
@@ -118,18 +117,22 @@ public abstract class DataSourceHandler {
 
 	@Autowired
 	private TimeseriesClient timeseriesClient;
-
+	
 	@Autowired
-	private AssetFactory assetFactory;
+	@Qualifier("AssetClient")
+	protected AssetClientImpl assetClient;
 
-	/**
-	 * 
-	 */
-	@Autowired
-	protected GroupFactory groupFactory;
-
-	@Autowired
-	private TagFactory tagFactory;
+//	@Autowired
+//	private AssetFactory assetFactory;
+//
+//	/**
+//	 * 
+//	 */
+//	@Autowired
+//	protected GroupFactory groupFactory;
+//
+//	@Autowired
+//	private TagFactory tagFactory;
 
 	@Autowired
 	private DefaultTimeseriesConfig timeseriesConfig;
@@ -156,6 +159,63 @@ public abstract class DataSourceHandler {
 	public abstract List<BaseKpiDataGrid> getWidgetData(String id, String start_time, String end_time,
 			String authorization);
 
+	
+	/**
+	 * @param tagName
+	 *            -
+	 * @param assetTag
+	 *            -
+	 * @param authorization
+	 *            -
+	 * @return -
+	 */
+	@SuppressWarnings({"nls" })
+	protected AssetKpiDataGrid getAnalyticsDrivenAssetDataGrid(String tagName, AssetTag assetTag,
+			String authorization) {
+		AssetKpiDataGrid assetKpiDataGrid = null;
+		// check if datasource has the tagExtenstionsUri
+		String tagExtensionUrl = null;
+		if (assetTag.getAlertStatusUri() != null
+				&& !(assetTag.getAlertStatusUri().isEmpty())) {
+			tagExtensionUrl = assetTag.getAlertStatusUri();
+		} else {
+			return null;
+		}
+
+		Asset asset = getAsset(tagExtensionUrl.replace("/asset/", ""), authorization); 
+		String alertStatus = getValueFromAttributes(asset, "alertStatus");
+		String alertType = getValueFromAttributes(asset, "alertType");
+		String alertLevel = getValueFromAttributes(asset, "alertLevel");
+		String thresholdDiff = getValueFromAttributes(asset, "deltaThreshold");
+		String alarmLevelValue = getValueFromAttributes(asset, "alertLevelValue");
+		String alarmLevelValueTime = getValueFromAttributes(asset, "alertTime");
+		String sourceType = getValueFromAttributes(asset, "sourceType");
+		log.debug("***Analytics Tag information**** for " + tagName + " for " + tagExtensionUrl); 
+		log.debug("alertStatus = " + alertStatus);
+		log.debug("alertType = " + alertType);
+		log.debug("alertLevel = " + alertLevel);
+		log.debug("thresholdDiff = " + thresholdDiff);
+		log.debug("alarmLevelValue = " + alarmLevelValue);
+
+		if (!org.springframework.util.StringUtils.isEmpty(sourceType)
+				&& !org.springframework.util.StringUtils.isEmpty(alertStatus)
+				&& !org.springframework.util.StringUtils.isEmpty(alertType)
+				&& !org.springframework.util.StringUtils.isEmpty(alertLevel)
+				&& !org.springframework.util.StringUtils.isEmpty(thresholdDiff)
+				&& !org.springframework.util.StringUtils.isEmpty(alarmLevelValue)
+				&& !org.springframework.util.StringUtils.isEmpty(alarmLevelValueTime)) {
+
+			assetKpiDataGrid = new AssetKpiDataGrid();
+			assetKpiDataGrid.setAlertStatus(Boolean.valueOf(alertStatus));
+			assetKpiDataGrid.setAlertStatusType(alertType);
+			assetKpiDataGrid.setCurrentValue(new Double(alarmLevelValue));
+			assetKpiDataGrid.setDeltaThreshold(new Double(thresholdDiff));
+			assetKpiDataGrid.setDeltaThresholdLevel(alarmLevelValue);
+			assetKpiDataGrid.setLastTagReading(new Long(alarmLevelValueTime));
+		}
+
+		return assetKpiDataGrid;
+	}
 	
 	/**
 	 * Calls Time series End point to fetch the Tag last value
@@ -246,12 +306,25 @@ public abstract class DataSourceHandler {
 		if (isCacheEnabled()) {
 			this.assetMap.get(tagUri);
 		}
-		if (tag == null)
-			tag = this.getTagFactory().getTag(tagUri.replace("/tag/", ""),  
-					headers);
-		if (tag != null) {
-			this.assetMap.put(tagUri, tag);
+		
+		//if (tag == null)
+//			tag = this.getTagFactory().getTag(tagUri.replace("/tag/", ""),  
+//					headers);
+			
+		
+		
+		List<Tag> myTags = this.assetClient.getModels( tagUri, Tag.class, headers);	
+//		if (tag != null) {
+//			this.assetMap.put(tagUri, tag);
+//		}
+		
+		if(myTags!= null && myTags.size() > 0)
+		{
+			//We are expecting one Tag object here as per the above logic tagUri string replacement
+			this.assetMap.put(tagUri,myTags.get(0));
+			tag = myTags.get(0);
 		}
+		
 		return tag;
 	}
 
@@ -477,9 +550,22 @@ public abstract class DataSourceHandler {
 			}
 
 			log.debug("cache missed,going to asset now "); 
-			assets = this.getAssetFactory().getAssetsByFilter(null, SUMMARY_ASSET_ATT,
-					"/" + GROUP_FILTER.toLowerCase() + "/" + id,  
-					headers);
+			
+			log.debug("Callling Asset Summary:" + SUMMARY_ASSET_ATT, "/" + GROUP_FILTER.toLowerCase() + "/" + id);   //$NON-NLS-3$
+
+			
+//			log.debug("Sushma....VALUES TEST: " + SUMMARY_ASSET_ATT);
+//				log.debug("VALUES 2: " +	"/" + GROUP_FILTER.toLowerCase() + "/" );
+				
+			
+			
+//			assets = this.getAssetFactory().getAssetsByFilter(null, SUMMARY_ASSET_ATT,
+//					"/" + GROUP_FILTER.toLowerCase() + "/" + id,  
+//					headers);
+						
+			assets = this.assetClient.getModelsByFilter(Asset.class, null, SUMMARY_ASSET_ATT,
+				"/"	+ GROUP_FILTER.toLowerCase() + "/" + id, headers);
+			
 			this.assetMap.put(SUMMARY_ASSET_ATT + "/" + GROUP_FILTER.toLowerCase() + "/" 
 					+ id, assets);
 			if (log.isTraceEnabled()) {
@@ -609,65 +695,8 @@ public abstract class DataSourceHandler {
 		return datapointsQuery;
 	}
 
-	/**
-	 * @param tagName
-	 *            -
-	 * @param assetTag
-	 *            -
-	 * @param authorization
-	 *            -
-	 * @return -
-	 */
-	@SuppressWarnings({"nls" })
-	protected AssetKpiDataGrid getAnalyticsDrivenAssetDataGrid(String tagName, AssetTag assetTag,
-			String authorization) {
-		AssetKpiDataGrid assetKpiDataGrid = null;
-		// check if datasource has the tagExtenstionsUri
-		String tagExtensionUrl = null;
-		if (assetTag.getAlertStatusUri() != null
-				&& !(assetTag.getAlertStatusUri().isEmpty())) {
-			tagExtensionUrl = assetTag.getAlertStatusUri();
-		} else {
-			return null;
-		}
-
-		Asset asset = getAsset(tagExtensionUrl.replace("/asset/", ""), authorization); 
-		String alertStatus = getValueFromAttributes(asset, "alertStatus");
-		String alertType = getValueFromAttributes(asset, "alertType");
-		String alertLevel = getValueFromAttributes(asset, "alertLevel");
-		String thresholdDiff = getValueFromAttributes(asset, "deltaThreshold");
-		String alarmLevelValue = getValueFromAttributes(asset, "alertLevelValue");
-		String alarmLevelValueTime = getValueFromAttributes(asset, "alertTime");
-		String sourceType = getValueFromAttributes(asset, "sourceType");
-		log.debug("***Analytics Tag information**** for " + tagName); 
-		log.debug("alertStatus = " + alertStatus);
-		log.debug("alertType = " + alertType);
-		log.debug("alertLevel = " + alertLevel);
-		log.debug("thresholdDiff = " + thresholdDiff);
-		log.debug("alarmLevelValue = " + alarmLevelValue);
-
-		if (!org.springframework.util.StringUtils.isEmpty(sourceType)
-				&& !org.springframework.util.StringUtils.isEmpty(alertStatus)
-				&& !org.springframework.util.StringUtils.isEmpty(alertType)
-				&& !org.springframework.util.StringUtils.isEmpty(alertLevel)
-				&& !org.springframework.util.StringUtils.isEmpty(thresholdDiff)
-				&& !org.springframework.util.StringUtils.isEmpty(alarmLevelValue)
-				&& !org.springframework.util.StringUtils.isEmpty(alarmLevelValueTime)) {
-
-			assetKpiDataGrid = new AssetKpiDataGrid();
-			assetKpiDataGrid.setAlertStatus(Boolean.valueOf(alertStatus));
-			assetKpiDataGrid.setAlertStatusType(alertType);
-			assetKpiDataGrid.setCurrentValue(new Double(alarmLevelValue));
-			assetKpiDataGrid.setDeltaThreshold(new Double(thresholdDiff));
-			assetKpiDataGrid.setDeltaThresholdLevel(alarmLevelValue);
-			assetKpiDataGrid.setLastTagReading(new Long(alarmLevelValueTime));
-		}
-
-		return assetKpiDataGrid;
-	}
-
 	@SuppressWarnings("nls")
-    private String getValueFromAttributes(Asset asset, String attributeName) {
+    	private String getValueFromAttributes(Asset asset, String attributeName) {
 		String attValue = null;
 		Attribute attribute = (Attribute) asset.getAttributes().get(attributeName);
 
@@ -692,6 +721,7 @@ public abstract class DataSourceHandler {
 	@SuppressWarnings("nls")
     public Asset getAsset(final String id, final String authorization) {
 		Asset asset = null;
+		
 		if (authorization == null) {
 			// Note in your app you may want to throw an exception rather than
 			// use the info in the property file
@@ -710,10 +740,22 @@ public abstract class DataSourceHandler {
 				if (log.isTraceEnabled()) {
 					log.trace("Callling getAsset"); 
 				}
-				asset = this.getAssetFactory().getAsset(id, headers);
-				if (asset != null) {
+				
+				//asset = this.getAssetFactory().getAsset(id, headers);
+				//Calling with the new API signature
+				
+				List<Asset> assetList = this.assetClient.getModels("/asset/"+ id, Asset.class, headers);
+				
+//				if (asset != null) {
+//					this.assetMap.put(id, asset);
+//				}
+				
+				if(assetList != null && assetList.size() >= 1)
+				{
+					asset = assetList.get(0);
 					this.assetMap.put(id, asset);
 				}
+				
 				if (log.isTraceEnabled()) {
 					log.trace("Total time spend is sec " + (System.currentTimeMillis() - startTime) / 1000); 
 					log.trace("Callling getAsset"); 
@@ -723,6 +765,7 @@ public abstract class DataSourceHandler {
 			}
 		}
 		return asset;
+		
 	}
 
 	/**
@@ -754,20 +797,7 @@ public abstract class DataSourceHandler {
 		return this.timeseriesClient;
 	}
 
-	/**
-	 * @return the assetFactory
-	 */
-	public AssetFactory getAssetFactory() {
-		return this.assetFactory;
-	}
-
-	/**
-	 * @return the tagFactory
-	 */
-	public TagFactory getTagFactory() {
-		return this.tagFactory;
-	}
-
+	
 	/**
 	 * @return the assetMap
 	 */
@@ -783,12 +813,5 @@ public abstract class DataSourceHandler {
 		this.assetMap = assetMap;
 	}
 
-	/**
-	 * @param assetFactory
-	 *            the assetFactory to set
-	 */
-	public void setAssetFactory(AssetFactory assetFactory) {
-		this.assetFactory = assetFactory;
-	}
-
+	
 }
