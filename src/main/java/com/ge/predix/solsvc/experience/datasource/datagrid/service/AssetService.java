@@ -71,13 +71,11 @@ public class AssetService extends DataSourceHandler {
 				// Note in your app you may want to throw an exception rather
 				// than
 				// use the info in the property file
-				headers = this.restClient.getSecureTokenForClientId();
-				this.restClient.addZoneToHeaders(headers, this.assetConfig.getZoneId());
+			    headers = this.assetClient.getAssetHeaders();
 			} else {
 				headers = new ArrayList<Header>();
-				this.restClient.addSecureTokenToHeaders(headers, authorization);
-
-				this.restClient.addZoneToHeaders(headers, this.assetConfig.getZoneId());
+				this.assetClient.addSecureTokenToHeaders(headers, authorization);
+				this.assetClient.addZoneIdToHeaders(headers);
 			}
 			Long startTime = System.currentTimeMillis();
 			if (log.isDebugEnabled()) {
@@ -127,14 +125,11 @@ public class AssetService extends DataSourceHandler {
 				// Note in your app you may want to throw an exception rather
 				// than
 				// use the info in the property file
-				headers = this.restClient.getSecureTokenForClientId();
-				this.restClient.addZoneToHeaders(headers, this.assetConfig.getZoneId());
+			    headers = this.assetClient.getAssetHeaders();
 			} else {
 				headers = new ArrayList<Header>();
-				this.restClient.addSecureTokenToHeaders(headers, authorization);
-
-				this.restClient.addZoneToHeaders(headers, this.assetConfig.getZoneId());
-
+                this.assetClient.addSecureTokenToHeaders(headers, authorization);
+                this.assetClient.addZoneIdToHeaders(headers);
 			}
 			Long startTime = System.currentTimeMillis();
 			if (log.isDebugEnabled()) {

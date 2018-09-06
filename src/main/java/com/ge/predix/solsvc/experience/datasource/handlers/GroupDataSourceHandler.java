@@ -99,18 +99,16 @@ public class GroupDataSourceHandler extends DataSourceHandler {
 	 * @param authorization
 	 * @return
 	 */
-	private List<Asset> getAssetWithKpi(String id, String authorization) {
+	@SuppressWarnings("nls")
+    private List<Asset> getAssetWithKpi(String id, String authorization) {
 		List<Asset> allGroupChildrenAsset = new ArrayList<Asset>();
 
-		List<Header> headers = new ArrayList<Header>();
 		List<Asset> totalAssets = new ArrayList<Asset>();
-
-		this.restClient.addSecureTokenToHeaders(headers, authorization);
-		this.restClient.addZoneToHeaders(headers, this.assetConfig.getZoneId());
+        List<Header> headers = this.assetClient.getAssetHeaders();
 		
 //		log.debug("Parameter id value from method: getAssetWithKpi: " + id);
 		
-		log.debug("Parameter filetr value from method: getAssetWithKpi: " 
+		log.debug("Parameter filter value from method: getAssetWithKpi: " 
 		+ PARENT_FILTER.toLowerCase() + "/" + GROUP_FILTER.toLowerCase()	
 		+ "/");
 
@@ -171,7 +169,8 @@ public class GroupDataSourceHandler extends DataSourceHandler {
 	 * @param context
 	 * @return
 	 */
-	private Collection<? extends Asset> getAssetChildren(Asset asset, List<Header> headers) {
+	@SuppressWarnings("nls")
+    private Collection<? extends Asset> getAssetChildren(Asset asset, List<Header> headers) {
 		
 		List<Asset> assetChildren = new ArrayList<Asset>();
 
