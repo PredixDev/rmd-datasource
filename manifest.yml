@@ -1,7 +1,7 @@
 #inherit: base-manifest.yml
 applications:
   - name: {your-name}-rmd-datasource
-    path: target/rmd-datasource-2.0.80.jar
+    path: target/rmd-datasource-2.0.83.jar
     memory: 512M
     services:
         - {uaaService}
